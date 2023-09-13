@@ -1,5 +1,5 @@
 const express = require("express")
-const { MongoClient } = require("mongodb")
+const { MongoClient,ServerApiVersion } = require("mongodb")
 const cors = require('cors')
 const { ObjectId } = require("mongodb")
 const app = express()
@@ -50,7 +50,14 @@ let arr = [{
 }]
 
 const url = "mongodb+srv://luckypranav47:lucky647@cluster0.yo7ifvg.mongodb.net/?retryWrites=true&w=majority";
-const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
+const client = new MongoClient(url, {
+    serverApi: {
+      version: ServerApiVersion.v1,
+      strict: true,
+      deprecationErrors: true,
+    }
+  });
+  
 
 app.get('/', (req, res) => {
     res.send("hello world")
