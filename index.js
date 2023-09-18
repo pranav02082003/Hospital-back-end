@@ -1,50 +1,51 @@
 const express = require("express")
-const { MongoClient,ServerApiVersion } = require("mongodb")
+const { MongoClient, ServerApiVersion } = require("mongodb")
 const cors = require('cors')
 const { ObjectId } = require("mongodb")
 const app = express()
 
 app.use(cors())
+app.use(express.json())
 
 
 let arr = [{
-    id:1,
+    id: 1,
     time: "10:00",
     status: true
 }, {
-    id:2,
+    id: 2,
     time: "10:30",
     status: true
 }, {
-    id:3,
+    id: 3,
     time: "11:00",
     status: true
 }, {
-    id:4,
+    id: 4,
     time: "11:30",
     status: true
 }, {
-    id:5,
+    id: 5,
     time: "12:00",
     status: true
 }, {
-    id:6,
+    id: 6,
     time: "02:00",
     status: true
 }, {
-    id:7,
+    id: 7,
     time: "02:30",
     status: true
 }, {
-    id:8,
+    id: 8,
     time: "03:00",
     status: true
 }, {
-    id:9,
+    id: 9,
     time: "03:30",
     status: true
 }, {
-    id:10,
+    id: 10,
     time: "04:00",
     status: true
 }]
@@ -52,12 +53,12 @@ let arr = [{
 const url = "mongodb+srv://luckypranav47:lucky647@cluster0.yo7ifvg.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(url, {
     serverApi: {
-      version: ServerApiVersion.v1,
-      strict: true,
-      deprecationErrors: true,
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
     }
-  });
-  
+});
+
 
 app.get('/', (req, res) => {
     res.send("hello world")
@@ -74,7 +75,7 @@ app.get('/data', async (req, res) => {
         res.status(500).json({ error: 'Error retrieving data' });
     }
 })
-app.get('getDoctors',async (req,res) => {
+app.get('getDoctors', async (req, res) => {
     try {
         const collection = client.db('Hospital_Mangement').collection('Doctors');
         const allData = await collection.find({}).toArray();
@@ -86,8 +87,17 @@ app.get('getDoctors',async (req,res) => {
     }
 })
 
+app.post('/appointments',async (req, res) => {
+    const data = req.body
+    const collection = client.db('Hospital_Mangement').collection('Doctors');
+    const allData = await collection.find({}).toArray();
+    if (data) {
+        res.send({ message: "Booked Successfully" })
+    }
+})
 
-app.put('/add',async (req, res) => {
+
+app.put('/add', async (req, res) => {
     let receivedData1 = new ObjectId("64f890dd365b3e3cbe1942e7")
     const collection = client.db('Hospital_Mangement').collection('Doctors');
     arr.map(async (each) => {
