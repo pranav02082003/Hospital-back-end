@@ -87,13 +87,33 @@ app.get('getDoctors', async (req, res) => {
     }
 })
 
-app.post('/appointments',async (req, res) => {
-    const data = req.body
+app.post('/appointments', async (req, res) => {
+    try {
+        const result = req.body
+    const { id,data } = result
     const collection = client.db('Hospital_Mangement').collection('Doctors');
-    const allData = await collection.find({}).toArray();
-    if (data) {
-        res.send({ message: "Booked Successfully" })
+    const allData = await collection.updateOne({
+        "_id": new ObjectId(id) 
+    },
+        { $push: { "appointments": data } }
+    );
+    const status = await collection.find({"_id" : new ObjectId(id)}).toArray()
+    const filtered = status[0].DoctorTimings.map((each) => {
+        if (each.time === data.time) {
+            return {...each,status: !each.status}
+        }else{
+            return each
+        }
+    })
+    const query = await collection.updateOne(
+        {"_id" : new ObjectId(id)},
+        {$set: {"DoctorTimings":filtered}}
+    )
+    res.send({message:"Booked successfully"}).status(200)
+    } catch (error) {
+        console.log(error)
     }
+    
 })
 
 
