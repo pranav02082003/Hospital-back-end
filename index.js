@@ -116,6 +116,13 @@ app.post('/appointments', async (req, res) => {
     
 })
 
+app.post('/login',async (req,res) => {
+    const {username,password} = req.body;
+    const collection = await client.db("Hospital_Mangement").collection("Admin_Login")
+    const loginData = await collection.find({"username" : username}).toArray()
+    res.send(loginData)
+})
+
 
 app.put('/add', async (req, res) => {
     let receivedData1 = new ObjectId("64f890dd365b3e3cbe1942e7")
