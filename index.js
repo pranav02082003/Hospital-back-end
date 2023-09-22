@@ -1,6 +1,7 @@
 const express = require("express")
 const { MongoClient, ServerApiVersion } = require("mongodb")
 const cors = require('cors')
+const  jwt  = require("jsonwebtoken")
 const { ObjectId } = require("mongodb")
 const app = express()
 
@@ -90,37 +91,51 @@ app.get('getDoctors', async (req, res) => {
 app.post('/appointments', async (req, res) => {
     try {
         const result = req.body
-    const { id,data } = result
-    const collection = client.db('Hospital_Mangement').collection('Doctors');
-    const allData = await collection.updateOne({
-        "_id": new ObjectId(id) 
-    },
-        { $push: { "appointments": data } }
-    );
-    const status = await collection.find({"_id" : new ObjectId(id)}).toArray()
-    const filtered = status[0].DoctorTimings.map((each) => {
-        if (each.time === data.time) {
-            return {...each,status: !each.status}
-        }else{
-            return each
-        }
-    })
-    const query = await collection.updateOne(
-        {"_id" : new ObjectId(id)},
-        {$set: {"DoctorTimings":filtered}}
-    )
-    res.send({message:"Booked successfully"}).status(200)
+        const { id, data } = result
+        const collection = client.db('Hospital_Mangement').collection('Doctors');
+        const allData = await collection.updateOne({
+            "_id": new ObjectId(id)
+        },
+            { $push: { "appointments": data } }
+        );
+        const status = await collection.find({ "_id": new ObjectId(id) }).toArray()
+        const filtered = status[0].DoctorTimings.map((each) => {
+            if (each.time === data.time) {
+                return { ...each, status: !each.status }
+            } else {
+                return each
+            }
+        })
+        const query = await collection.updateOne(
+            { "_id": new ObjectId(id) },
+            { $set: { "DoctorTimings": filtered } }
+        )
+        res.send({ message: "Booked successfully" }).status(200)
     } catch (error) {
         console.log(error)
     }
-    
+
 })
 
-app.post('/login',async (req,res) => {
-    const {username,password} = req.body;
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
     const collection = await client.db("Hospital_Mangement").collection("Admin_Login")
-    const loginData = await collection.find({"username" : username}).toArray()
-    res.send(loginData)
+    const loginData = await collection.find({ "username": username }).toArray()
+    if (loginData.length === 0) {
+        res.status(404).send("Enter valid credentials")
+    }
+    else {
+        if (loginData[0].username === username) {
+            if (loginData[0].password === password) {
+                let token = jwt.sign(username, 'myToken')
+                res.send({token:token})
+            } else {
+                res.status(404).send("Enter valid password")
+            }
+        } else {
+            res.status(404).send("Enter valid username")
+        }
+    }
 })
 
 
