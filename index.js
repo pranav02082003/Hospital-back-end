@@ -1,7 +1,7 @@
 const express = require("express")
 const { MongoClient, ServerApiVersion } = require("mongodb")
 const cors = require('cors')
-const  jwt  = require("jsonwebtoken")
+const jwt = require("jsonwebtoken")
 const { ObjectId } = require("mongodb")
 const app = express()
 
@@ -128,13 +128,24 @@ app.post('/login', async (req, res) => {
         if (loginData[0].username === username) {
             if (loginData[0].password === password) {
                 let token = jwt.sign(username, 'myToken')
-                res.send({token:token})
+                res.send({ token: token })
             } else {
                 res.status(404).send("Enter valid password")
             }
         } else {
             res.status(404).send("Enter valid username")
         }
+    }
+})
+app.put('/change_availability', async (req, res) => {
+    try {
+        const { availability, id } = req.body
+        const collection = await client.db("Hospital_Mangement").collection("Doctors")
+        const loginData = await collection.updateOne({ "_id": new ObjectId(id) },
+            { $set: { "Available": availability } })
+        res.send("changed successfuly")
+    } catch (error) {
+        console.log(error)
     }
 })
 
