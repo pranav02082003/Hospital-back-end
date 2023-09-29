@@ -164,6 +164,25 @@ app.put('/add', async (req, res) => {
 
 })
 
+app.post('/update', async (req, res) => {
+    const data = req.body
+    const collection = await client.db('Hospital_Mangement').collection('Doctors');
+
+    const filter = {
+        "_id": new ObjectId(data.id),
+        'DoctorTimings.id': { $in: [data.obj.id] } // Specify the IDs of the doctor timings to update
+    };
+
+    const update = {
+        $set: {
+            'DoctorTimings.$.status': true
+        }
+    };
+
+    const result = await collection.updateMany(filter, update);
+    console.log(result)
+})
+
 
 app.listen(4000, async () => {
     try {
